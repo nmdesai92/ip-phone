@@ -106,21 +106,22 @@ int main(int argc,char **argv)
 		{
 			uint8_t buf[BUFSIZE];
 			ssize_t r;
-			//sleep(2);
+			
 			/* receive audio data...*/
 			if((r = recv(new_socket, buf, sizeof(buf), 0)) <= 0)
 			{
 				if(r == 0)
 				{
-						printf("not ok\n");
+						printf("call disconnected\n");
 						flag = 1;
+						continue;
 
 				}
 				fprintf(stderr, __FILE__": read() failed: %s\n", strerror(errno));
 				if(s)	pa_simple_free(s);
 				exit(1);
 			}
-			printf("%s",buf);
+			//printf("%s",buf);
 			
 			/*play audio...*/
 

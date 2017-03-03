@@ -99,8 +99,8 @@ int main(int argc,char*argv[])
 			if(s) pa_simple_free(s);
 			exit(1);
 		}
-		write(STDOUT_FILENO, buf,sizeof (buf));
-		sleep(0.5);
+		//write(STDOUT_FILENO, buf,sizeof (buf));
+		sleep (0.5);
 		if(loop_send(socket_desc, buf, sizeof(buf)) != sizeof(buf))
 		{
 			perror("send failed:");
