@@ -14,7 +14,7 @@
 #include <pulse/simple.h>
 #include <pulse/error.h>
 
-#define BUFSIZE 1024
+#define BUFSIZE 100
 
 static ssize_t loop_send(int fd, const void *data, size_t size)
 {
@@ -100,7 +100,7 @@ int main(int argc,char*argv[])
 			exit(1);
 		}
 		//write(STDOUT_FILENO, buf,sizeof (buf));
-		sleep (0.5);
+		//sleep (0.5);
 		if(loop_send(socket_desc, buf, sizeof(buf)) != sizeof(buf))
 		{
 			perror("send failed:");

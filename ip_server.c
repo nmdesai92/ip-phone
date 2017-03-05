@@ -1,4 +1,3 @@
-
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -21,7 +20,7 @@
 #include <pulse/error.h>
 
 #define PORT "8888"
-#define BUFSIZE 1024
+#define BUFSIZE 100
 
 int main(int argc,char **argv)
 {
@@ -89,18 +88,19 @@ int main(int argc,char **argv)
 
 	c = sizeof(struct sockaddr_in);
 
-	while(1)
+	/*accept the connection*/
+	new_socket = accept(socket_desc,(struct sockaddr *)&client,(socklen_t *)&c);
+	if(new_socket == -1)
 	{
+		perror("accept");
+		//continue;
+	}
+	puts("connection accepted");
+
+	//while(1)
+	//{
 		int flag = 0;
 
-		/*accept the connection*/
-		new_socket = accept(socket_desc,(struct sockaddr *)&client,(socklen_t *)&c);
-		if(new_socket == -1)
-		{
-			perror("accept");
-			continue;
-		}
-		puts("connection accepted");
 
 		while(!flag)
 		{
@@ -114,7 +114,7 @@ int main(int argc,char **argv)
 				{
 						printf("call disconnected\n");
 						flag = 1;
-						continue;
+						break;
 
 				}
 				fprintf(stderr, __FILE__": read() failed: %s\n", strerror(errno));
@@ -124,13 +124,11 @@ int main(int argc,char **argv)
 			//printf("%s",buf);
 			
 			/*play audio...*/
-
-			if(pa_simple_write(s, buf, (size_t)r, &error) < 0)
-			{
-				fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
-	            if(s)	pa_simple_free(s);
-				exit(1);
-			}
+			 if (pa_simple_write(s, buf, (size_t) r, &error) < 0) {
+            	fprintf(stderr, __FILE__": pa_simple_write() failed: %s\n", pa_strerror(error));
+            	if(s)	pa_simple_free(s);
+        	}
+        	
 		}
 		/*Make sure that every single sample is played*/
 		if(pa_simple_drain(s, &error) < 0)
@@ -139,7 +137,7 @@ int main(int argc,char **argv)
 			if(s)	pa_simple_free(s);
 			exit(1);
 		}
-	}
+	//}
 
 	
 
