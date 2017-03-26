@@ -44,33 +44,33 @@ ssize_t r;
 static void timer_handler (int signum)
 {
 
-			/* receive audio data...*/
-		if((r = recv(new_socket, buf, sizeof(buf), 0)) <= 0)
+	/* receive audio data...*/
+	if((r = recv(new_socket, buf, sizeof(buf), 0)) <= 0)
+	{
+		if(r == 0)	/*Disconnect call if client is off*/
 		{
-			if(r == 0)	/*Disconnect call if client is off*/
-			{
-					printf("call disconnected\n");
-					exit(0);
+				printf("call disconnected\n");
+				exit(0);
 
-			}
-			perror("read() failed :");
-			if(s)	pa_simple_free(s);
-			exit(1);
 		}
-		/*play audio...*/
-		 if (pa_simple_write(s, buf, (size_t) r, &error) < 0) {
-        	perror("pa_simple_write() failed:");
-        	if(s)	pa_simple_free(s);
+		perror("read() failed :");
+		if(s)	pa_simple_free(s);
+		exit(1);
+	}
+	
+	/*play audio...*/
+	 if (pa_simple_write(s, buf, (size_t) r, &error) < 0) {
+		perror("pa_simple_write() failed:");
+	 if(s)	pa_simple_free(s);
     	}
 
     	/*Make sure that every single sample is played*/
-		if(pa_simple_drain(s, &error) < 0)
-		{
-			perror("pa_simple_drain() failed :");
-			if(s)	pa_simple_free(s);
-			exit(1);
-		}	
-	
+	if(pa_simple_drain(s, &error) < 0)
+	{
+		perror("pa_simple_drain() failed :");
+		if(s)	pa_simple_free(s);
+		exit(1);
+	}	
 }
 
 int main(int argc,char **argv)
@@ -81,24 +81,25 @@ int main(int argc,char **argv)
 		.rate = 44100,
 		.channels = 2
 	};
-
-
+	
+	/*Socket variables*/
 	int socket_desc, c;
 	struct addrinfo hints, *server, *p;
 	struct sockaddr_in client;
 	int rv;
 
-	  timer_t timerid;
-      struct sigevent sev;
-      struct itimerspec its;
-      struct sigaction sa;
+	/*Timer variables*/
+	timer_t timerid;
+      	struct sigevent sev;
+      	struct itimerspec its;
+      	struct sigaction sa;
 
-      /* Timer interrupt */
-      memset (&sa, 0, sizeof (sa));
-      sa.sa_handler = timer_handler;
-      sigaction(SIG, &sa, NULL);
+      	/* Timer interrupt handler declaration*/
+      	memset (&sa, 0, sizeof (sa));
+      	sa.sa_handler = timer_handler;
+      	sigaction(SIG, &sa, NULL);
 
-	
+	/*Socket parameters setting*/
 	memset(&hints, 0,sizeof hints);
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
@@ -156,25 +157,25 @@ int main(int argc,char **argv)
 	}
 	puts("connection accepted");
 
-	  sev.sigev_notify = SIGEV_SIGNAL;
-	  sev.sigev_signo = SIG;
-	  sev.sigev_value.sival_ptr = &timerid;
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIG;
+	sev.sigev_value.sival_ptr = &timerid;
 	  
 	 /*Create timer*/ 
 	if (timer_create(CLOCKID, &sev, &timerid) == -1)
 	     perror("timer_create");
 
 	 /*Set values : period = 20 ms*/
-    its.it_value.tv_sec = 0 ;
-    its.it_value.tv_nsec =  20;
-    its.it_interval.tv_sec = 0;
-    its.it_interval.tv_nsec = 20000000;		//20ms
+    	its.it_value.tv_sec = 0 ;
+    	its.it_value.tv_nsec =  20;
+    	its.it_interval.tv_sec = 0;
+    	its.it_interval.tv_nsec = 20000000;		//20ms
 
-    /*Start the 20ms timer*/
-    if (timer_settime(timerid, 0, &its, NULL) == -1)
+    	/*Start the 20ms timer*/
+    	if (timer_settime(timerid, 0, &its, NULL) == -1)
               perror("timer_settime");  
     
-    while(1);	//Schedule timer
+    	while(1);	//Start scheduling
    
    	return 0;
 }
