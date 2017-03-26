@@ -88,23 +88,20 @@ int main(int argc,char*argv[])
 	
 	struct sockaddr_in server;
 
-	/*Timer parameters*/
+	/*Timer variables*/
 	timer_t timerid;
-    struct sigevent sev;
-    struct itimerspec its;
-    struct sigaction sa;
+    	struct sigevent sev;
+    	struct itimerspec its;
+    	struct sigaction sa;
 
-    /*Timer signal setting*/
-    memset (&sa, 0, sizeof (sa));
-    sa.sa_handler = timer_handler;
-    sigaction(SIG, &sa, NULL);
-
-	
+	/*Timer signal setting*/
+	memset (&sa, 0, sizeof (sa));
+	sa.sa_handler = timer_handler;
+	sigaction(SIG, &sa, NULL);
 
 	/*Create recording stream*/
 
 	s = pa_simple_new(NULL, argv[0], PA_STREAM_RECORD, NULL, "record", &ss, NULL,NULL, &error);
-
 	if(!s)
 	{
 		fprintf(stderr, __FILE__" : pa_simple_new() failed : %s\n", pa_strerror(error));
@@ -131,29 +128,28 @@ int main(int argc,char*argv[])
 		exit(1);
 	}
 
-	/*record audio*/
-
+	/*Timer signal parameters*/
 	sev.sigev_notify = SIGEV_SIGNAL;
-    sev.sigev_signo = SIG;
-    sev.sigev_value.sival_ptr = &timerid;
+    	sev.sigev_signo = SIG;
+    	sev.sigev_value.sival_ptr = &timerid;
 
-    /*Create Timer*/
-    if (timer_create(CLOCKID, &sev, &timerid) == -1)
-         perror("timer_create");
+        /*Create Timer*/
+       if (timer_create(CLOCKID, &sev, &timerid) == -1)
+      		   perror("timer_create");
 
-    /*Set values : Period = 20ms*/
-    its.it_value.tv_sec = 0 ;
-    its.it_value.tv_nsec =  20;
-    its.it_interval.tv_sec = 0;
-    its.it_interval.tv_nsec = 20000000;
+    	/*Set values : Period = 20ms*/
+    	its.it_value.tv_sec = 0 ;
+    	its.it_value.tv_nsec =  20;
+    	its.it_interval.tv_sec = 0;
+    	its.it_interval.tv_nsec = 20000000;
 
-    /*Start Timer*/
-    if (timer_settime(timerid, 0, &its, NULL) == -1)
+    	/*Start Timer*/
+    	if (timer_settime(timerid, 0, &its, NULL) == -1)
               perror("timer_settime");
 
-    while(1);	//Start Schedulin
+    	while(1);	//Start Scheduling
 
-    return 0;
+    	return 0;
 
 
 }
