@@ -165,11 +165,11 @@ int main(int argc,char **argv)
 	if (timer_create(CLOCKID, &sev, &timerid) == -1)
 	     perror("timer_create");
 
-	 /*Set values : period = 1 us*/
+	 /*Set values : period = 20ms*/
     	its.it_value.tv_sec = 0 ;
     	its.it_value.tv_nsec =  20;
     	its.it_interval.tv_sec = 0;
-    	its.it_interval.tv_nsec = 10000;		//10 us
+    	its.it_interval.tv_nsec = 20000000;		//10 us
 
     	/*Start the 20ms timer*/
     	if (timer_settime(timerid, 0, &its, NULL) == -1)
